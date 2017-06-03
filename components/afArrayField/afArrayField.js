@@ -36,37 +36,6 @@ let arrayItemSiblings;
 Template.afArrayField.rendered = function() {
   var self = this;
 
-
-  function onSortUpdate(ui) {
-    var arrayItems = self.findAll(".autoform-array-item");
-    _.each(arrayItems, function(arrayItem, i) {
-      function fixPosition(el) {
-        var dataSchemaKey = $(el).attr("data-schema-key");
-
-        if (! dataSchemaKey) return;
-
-        console.log(dataSchemaKey);
-
-        // if nested, then which of the indices was updated?
-        // determine which one, and then update that one
-
-        var schemaFields = dataSchemaKey.split('.');
-
-        var mainField = schemaFields[0];
-        var subField = schemaFields[2];
-
-        dataSchemaKey = mainField + '.' + i + '.' + subField;
-
-        $(el).attr("data-schema-key", dataSchemaKey);
-        $(el).attr("name", dataSchemaKey);
-      }
-
-      _.each($(arrayItem).find("input"), fixPosition);
-      _.each($(arrayItem).find("select"), fixPosition);
-    });
-  }
-
-
   if (!! this.data.enableSorting) {
     var listGroup = $(this.find(".list-group"));
 
@@ -78,34 +47,6 @@ Template.afArrayField.rendered = function() {
       handle: ".autoform-drag-item",
       cancel: ".autoform-add-item-wrap",
       update: function(event, ui){
-        // console.log('inside update, triggered when user stopped sorting and DOM position has changed');
-        // console.log(ui.item.find("input").attr("data-schema-key"));
-        // // console.log(ui.item.find("select").attr("data-schema-key"));
-        //
-        // // use this as the anchor point for contextualizing the data-schema-key when updating.
-        //
-        // var arrayItems = self.findAll(".autoform-array-item");
-        // console.log("currKey: " + currKey);
-        // _.each(arrayItems, function(arrayItem, i) {
-        //   function fixPosition(el) {
-        //     var dataSchemaKey = $(el).attr("data-schema-key");
-        //
-        //     if (! dataSchemaKey) return;
-        //
-        //     var schemaFields = dataSchemaKey.split('.');
-        //
-        //     var mainField = schemaFields[0];
-        //     var subField = schemaFields[2];
-        //
-        //     dataSchemaKey = mainField + '.' + i + '.' + subField;
-        //
-        //     $(el).attr("data-schema-key", dataSchemaKey);
-        //     $(el).attr("name", dataSchemaKey);
-        //   }
-        //
-        //   _.each($(arrayItem).find("input"), fixPosition);
-        //   _.each($(arrayItem).find("select"), fixPosition);
-        // });
 
         /**
          * Fix the position on the schema key
@@ -138,13 +79,11 @@ Template.afArrayField.rendered = function() {
           postUpdateKey = postUpdateKeyFields.join(".");
           _.each(children, (child) => {
             let childSchemaKey = $(child).find("input").attr("data-schema-key");
-            console.log("Before: ", childSchemaKey);
             childSchemaKey = childSchemaKey.replace(preUpdateKey, postUpdateKey);
             $(child).find("input:first").attr("data-schema-key", childSchemaKey);
             $(child).find("input:first").attr("name", childSchemaKey);
             $(child).find("select:first").attr("data-schema-key", childSchemaKey);
             $(child).find("select:first").attr("name", childSchemaKey);
-            console.log("After: ", childSchemaKey);
             // unlikely to have medium editor
             // if (!!$(child).find(".medium-editor").attr("data-schema-key")){
             //   let currMediumEditorKey = $(child).find(".medium-editor").attr("data-schema-key");
@@ -152,7 +91,6 @@ Template.afArrayField.rendered = function() {
           });
         };
 
-        // BEGIN NEW CODE
         // Updates the index for the item that was dragged and plopped
         toIdx = ui.item.index();
         let inputSchemaKey = updateSchemaKey(currKey, toIdx);
@@ -168,23 +106,8 @@ Template.afArrayField.rendered = function() {
           $(ui.item.context).find(".medium-editor:first").attr("name", updatedMediumEditorKey);
         }
 
-        console.log("********");
-        console.log($(ui.item.context).find("input").attr("data-schema-key"));
-        console.log("preupdate key",currKey);
-        console.log("postupdatekey", inputSchemaKey);
         let thisItemChildren = $(ui.item.context).find($(".autoform-array-item"));
         if (thisItemChildren.length > 0) updateChildrenSchemaKey(currKey, inputSchemaKey, thisItemChildren);
-        // _.each(thisItemChildren, (child) => {
-        //   let childSchemaKey =  $(child).find("input").attr("data-schema-key");
-        //   console.log(childSchemaKey);
-        // });
-        console.log("********");
-
-        // prints the schema key of the item in context
-        // console.log($(ui.item.context).find("input").attr("data-schema-key"));
-
-        // $(item).find("input").attr("data-schema-key", inputSchemaKey);
-        // console.log(fromIdx, toIdx);
 
         // Update the siblings by shifting up or down
         _.each(arrayItemSiblings, function(item){
@@ -223,16 +146,10 @@ Template.afArrayField.rendered = function() {
               $(item).find(".medium-editor:first").attr("data-schema-key", updatedMediumEditorKey);
               $(item).find(".medium-editor:first").attr("name", updatedMediumEditorKey);
             }
-
             let thisItemChildren = $(item).find(".autoform-array-item");
             if (thisItemChildren.length > 0) updateChildrenSchemaKey(currItemSchemaKey, inputSchemaKey, thisItemChildren);
-
-            //console.log("updated sibling: ", $(item).find("input").attr("data-schema-key"));
-            //console.log("medium editor updated sibling: ",$(item).find(".medium-editor").attr("data-schema-key"));
           }
         });
-
-      // END NEW CODE
       },
       start: function(event, ui){
         arrayItemSiblings = [];
