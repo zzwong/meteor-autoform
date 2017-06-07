@@ -28,10 +28,10 @@ Template.afArrayField.helpers({
   }
 });
 
-let currKey;
-let fromIdx;
-let toIdx;
-let arrayItemSiblings;
+var currKey;
+var fromIdx;
+var toIdx;
+var arrayItemSiblings;
 
 Template.afArrayField.rendered = function() {
   var self = this;
@@ -54,8 +54,8 @@ Template.afArrayField.rendered = function() {
          * @param newIdx
          * @returns {String} - updated schema key
          */
-        const updateSchemaKey = (schemaKey, newIdx) => {
-          let updatedSchemaKey,
+        function updateSchemaKey(schemaKey, newIdx) {
+          var updatedSchemaKey,
             schemaIdxToFix,
             schemaFields = schemaKey.split('.');
 
@@ -67,18 +67,18 @@ Template.afArrayField.rendered = function() {
           schemaFields[schemaIdxToFix] = newIdx.toString();
           updatedSchemaKey = schemaFields.join('.');
           return updatedSchemaKey;
-        };
+        }
 
-        const updateChildrenSchemaKey = (preUpdateKey, postUpdateKey, children) => {
+        function updateChildrenSchemaKey(preUpdateKey, postUpdateKey, children){
           // Snip last element in preUpdateKey, because it includes the name of current parentNode
-          let preUpdateKeyFields = preUpdateKey.split("."),
+          var preUpdateKeyFields = preUpdateKey.split("."),
             postUpdateKeyFields = postUpdateKey.split(".");
           preUpdateKeyFields.pop();
           postUpdateKeyFields.pop();
           preUpdateKey = preUpdateKeyFields.join(".");
           postUpdateKey = postUpdateKeyFields.join(".");
-          _.each(children, (child) => {
-            let childSchemaKey = $(child).find("input").attr("data-schema-key");
+          _.each(children, function (child) {
+            var childSchemaKey = $(child).find("input").attr("data-schema-key");
             childSchemaKey = childSchemaKey.replace(preUpdateKey, postUpdateKey);
             $(child).find("input:first").attr("data-schema-key", childSchemaKey);
             $(child).find("input:first").attr("name", childSchemaKey);
@@ -86,43 +86,43 @@ Template.afArrayField.rendered = function() {
             $(child).find("select:first").attr("name", childSchemaKey);
             // unlikely to have medium editor
             // if (!!$(child).find(".medium-editor").attr("data-schema-key")){
-            //   let currMediumEditorKey = $(child).find(".medium-editor").attr("data-schema-key");
+            //   var currMediumEditorKey = $(child).find(".medium-editor").attr("data-schema-key");
             // }
           });
-        };
+        }
 
         // Updates the index for the item that was dragged and plopped
         toIdx = ui.item.index();
-        let inputSchemaKey = updateSchemaKey(currKey, toIdx);
+        var inputSchemaKey = updateSchemaKey(currKey, toIdx);
         $(ui.item.context).find("input:first").attr("data-schema-key", inputSchemaKey);
         $(ui.item.context).find("input:first").attr("name", inputSchemaKey);
         $(ui.item.context).find("select:first").attr("data-schema-key", inputSchemaKey);
         $(ui.item.context).find("select:first").attr("name", inputSchemaKey);
 
         if (!!$(ui.item.context).find(".medium-editor").attr("data-schema-key")){
-          let currMediumEditorKey = $(ui.item.context).find(".medium-editor").attr("data-schema-key");
-          let updatedMediumEditorKey = updateSchemaKey(currMediumEditorKey, toIdx);
+          var currMediumEditorKey = $(ui.item.context).find(".medium-editor").attr("data-schema-key");
+          var updatedMediumEditorKey = updateSchemaKey(currMediumEditorKey, toIdx);
           $(ui.item.context).find(".medium-editor:first").attr("data-schema-key", updatedMediumEditorKey);
           $(ui.item.context).find(".medium-editor:first").attr("name", updatedMediumEditorKey);
         }
 
-        let thisItemChildren = $(ui.item.context).find($(".autoform-array-item"));
+        var thisItemChildren = $(ui.item.context).find($(".autoform-array-item"));
         if (thisItemChildren.length > 0) updateChildrenSchemaKey(currKey, inputSchemaKey, thisItemChildren);
 
         // Update the siblings by shifting up or down
         _.each(arrayItemSiblings, function(item){
-          let currItemSchemaKey = $(item).find("input").attr("data-schema-key")
+          var currItemSchemaKey = $(item).find("input").attr("data-schema-key")
             inputSchemaKey;
-          let schemaFields = currItemSchemaKey.split('.');
+          var schemaFields = currItemSchemaKey.split('.');
 
-          let schemaIdxToFix;
+          var schemaIdxToFix;
           if ($.isNumeric(schemaFields[schemaFields.length-1])){
             schemaIdxToFix = schemaFields.length-1;
           } else if ($.isNumeric(schemaFields[schemaFields.length-2])){
             schemaIdxToFix = schemaFields.length-2;
           }
-          let thisItemNewIdx;
-          let currIdx = parseInt(schemaFields[schemaIdxToFix]);
+          var thisItemNewIdx;
+          var currIdx = parseInt(schemaFields[schemaIdxToFix]);
           if ((currIdx >= fromIdx && currIdx <= toIdx) || (currIdx <= fromIdx && currIdx >= toIdx)) {
             if (fromIdx < toIdx) {
               // Shift up
@@ -141,12 +141,12 @@ Template.afArrayField.rendered = function() {
             $(item).find("select:first").attr("name", inputSchemaKey);
 
             if (!!$(item).find(".medium-editor").attr("data-schema-key")){
-              let currMediumEditorKey = $(item).find(".medium-editor").attr("data-schema-key");
-              let updatedMediumEditorKey = updateSchemaKey(currMediumEditorKey, thisItemNewIdx);
+              var currMediumEditorKey = $(item).find(".medium-editor").attr("data-schema-key");
+              var updatedMediumEditorKey = updateSchemaKey(currMediumEditorKey, thisItemNewIdx);
               $(item).find(".medium-editor:first").attr("data-schema-key", updatedMediumEditorKey);
               $(item).find(".medium-editor:first").attr("name", updatedMediumEditorKey);
             }
-            let thisItemChildren = $(item).find(".autoform-array-item");
+            var thisItemChildren = $(item).find(".autoform-array-item");
             if (thisItemChildren.length > 0) updateChildrenSchemaKey(currItemSchemaKey, inputSchemaKey, thisItemChildren);
           }
         });
@@ -154,9 +154,9 @@ Template.afArrayField.rendered = function() {
       start: function(event, ui){
         arrayItemSiblings = [];
         currKey = ui.item.find("input").attr("data-schema-key");
-        let sibs = ui.item.siblings();
+        var sibs = ui.item.siblings();
         _.each(sibs, function(sib){
-          let key = $(sib).find("input").attr("data-schema-key");
+          var key = $(sib).find("input").attr("data-schema-key");
           if (!!key) {
             arrayItemSiblings.push(sib);
           }
