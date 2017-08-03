@@ -19,6 +19,12 @@ AutoForm.addFormType('update', {
         // Nothing to update. Just treat it as a successful update.
         c.result(null, 0);
       } else {
+        // get rid nullsy array elements
+        _.each(Object.keys(modifier.$set), key => {
+          if (Array.isArray(modifier.$set[key])) {
+            modifier.$set[key] = _.compact(modifier.$set[key]);
+          }
+        });
         // Perform update
         collection.update({_id: c.docId}, modifier, c.validationOptions, c.result);
       }
