@@ -20,7 +20,7 @@ AutoForm.addFormType('update', {
         c.result(null, 0);
       } else {
         // get rid nullsy array elements
-        _.each(Object.keys(modifier.$set), key => {
+        _.each(Object.keys(modifier.$set), function(key) {
           if (Array.isArray(modifier.$set[key])) {
             modifier.$set[key] = _.compact(modifier.$set[key]);
           }
